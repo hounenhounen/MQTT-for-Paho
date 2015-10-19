@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+	<head>
+
+	</head>
+	<body>
+    <script src="./mqttws31.js"></script>
+		<script>
+      var client;
+      var clientID = 'maroc'; //何でもいいみたい
+      var topic = 'yourtopic'; //トピックを任意に作成
+ 
+      function connetct() {
+        
+        var userName = 'yourname';
+        var password = 'yourpass';
+        var websocketUrl = 'ws://yourURL:yourport/mqtt';
+ 
+        // Pahoの接続clientをnew
+        client = new Paho.MQTT.Client(websocketUrl, clientID);
+        
+        client.connect({
+          userName: userName,
+          password: password,
+          onSuccess: onConnect,
+          onFailure: failConnect
+        });
+        client.onConnectionLost = onConnectionLost;
+        // メッセージがSubscribe(購読者)に届いたらのイベントを登録
+        client.onMessageArrived = onMessageArrived;
+     }
+ 
+      
+      function failConnect(e) {
+        console.log('failed!');
+        console.log(e);
+      }
+　　　　　
+      
+      function onConnect() {
+        console.log('connecct');
+        // 接続した時点で購読をスタートさせる。一回で後は誰かがメッセージを送ったらonMessageArrivedが呼ばれる
+      subscribe();
+    }
+ 
+    // ブローカーにメッセージを送信
+    function publish(msg){
+      message = new Paho.MQTT.Message(msg);
+      message.destinationName = topic;
+      client.send(message);
+    }
+ 
+    // 購読をする
+    function subscribe() {
+      console.log('subscribe');
+      client.subscribe(topic);
+    }
+ 
+    // メッセージが到着したら
+    function onMessageArrived(message) {
+    console.log('onMessageArrived:'+ message.payloadString);
+      
+    }
+ 
+    //　接続が切れたら
+    function onConnectionLost(responseObject) {
+      if (responseObject.errorCode !== 0) {
+          console.log("onConnectionLost:"+responseObject.errorMessage);
+    }
+  }
+  connetct();
+
+    </script>
+	</body>
+</html>
